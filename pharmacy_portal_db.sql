@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: May 06, 2025 at 04:53 AM
+-- Generation Time: May 15, 2025 at 03:15 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -98,7 +98,14 @@ CREATE TABLE `Inventory` (
 INSERT INTO `Inventory` (`inventoryId`, `medicationId`, `quantityAvailable`, `lastUpdated`) VALUES
 (1, 1, 76, '2025-05-04 15:33:51'),
 (2, 2, 180, '2025-05-05 22:17:24'),
-(3, 3, 150, '2025-05-04 09:48:52');
+(3, 3, 150, '2025-05-04 09:48:52'),
+(4, 4, 200, '2025-05-14 09:20:38'),
+(5, 5, 150, '2025-05-14 09:20:38'),
+(6, 6, 90, '2025-05-14 09:21:32'),
+(7, 7, 120, '2025-05-14 09:21:32'),
+(8, 8, 230, '2025-05-14 09:21:59'),
+(9, 9, 125, '2025-05-14 09:21:59'),
+(10, 11, 130, '2025-05-14 18:58:39');
 
 --
 -- Triggers `Inventory`
@@ -151,7 +158,10 @@ INSERT INTO `Medications` (`medicationId`, `medicationName`, `dosage`, `manufact
 (5, 'Tylenol', '200mg ', 'Johnson & Johnson'),
 (6, 'Claritin', '10mg', 'Bayer'),
 (7, 'Eylea', '20mg', 'Bayer'),
-(8, 'Canister', '50mg', 'Bayer');
+(8, 'Canister', '50mg', 'Bayer'),
+(9, 'Xeplion', '20mg', 'Johnson & Johnson'),
+(10, 'Akin', '20mg', 'Bayer'),
+(11, 'Aspirin', '200mg', 'Bayer');
 
 -- --------------------------------------------------------
 
@@ -160,10 +170,15 @@ INSERT INTO `Medications` (`medicationId`, `medicationName`, `dosage`, `manufact
 -- (See below for the actual view)
 --
 CREATE TABLE `patientprescriptiondetails` (
-`userName` varchar(45)
+`prescriptionId` int(11)
+,`userId` int(11)
+,`userName` varchar(45)
+,`medicationId` int(11)
 ,`medicationName` varchar(45)
 ,`dosage` varchar(45)
 ,`dosageInstructions` varchar(200)
+,`quantity` int(11)
+,`refillCount` int(11)
 ,`prescribedDate` datetime
 );
 
@@ -198,7 +213,9 @@ INSERT INTO `Prescriptions` (`prescriptionId`, `userId`, `medicationId`, `prescr
 (8, 10, 8, '2025-05-05 21:05:59', 'Take Twice a Day', 20, 0),
 (9, 10, 8, '2025-05-05 21:06:17', 'Take Twice a Day', 50, 0),
 (10, 10, 8, '2025-05-05 21:23:05', 'Take 1 a Day', 10, 0),
-(11, 7, 2, '2025-05-05 22:17:24', 'one a day', 10, 0);
+(11, 7, 2, '2025-05-05 22:17:24', 'one a day', 10, 0),
+(12, 15, 9, '2025-05-14 07:40:22', 'Take 2 Tablets Twice A Day', 20, 0),
+(13, 15, 11, '2025-05-14 18:58:39', 'Take 2 Twice A Day', 20, 0);
 
 --
 -- Triggers `Prescriptions`
@@ -303,7 +320,9 @@ INSERT INTO `Users` (`userId`, `userName`, `contactInfo`, `userType`, `password`
 (10, 'sam21', 'sam@gmail.com', 'patient', '$2y$10$CAeo5JO4N9ZfA8/t9GHf7ORZekhMv6LcO6WBF5BCLbqg0Xqi3rjPO'),
 (12, 'doug21', 'doug@yahoo.com', 'pharmacist', '$2y$10$ecYO1La.R057wRqESooB9ubvp.1hS8.UTA2K9TjZKfK6k14AENw5m'),
 (13, 'joah21', 'joah@yahoo.com', 'patient', '$2y$10$NljsXDFtXDujLsfCMDuSGOJ0qZUjQQVLp0eNSNF5nSGC0vdyE6/sm'),
-(14, 'jenn21', 'jenn@gmail.com', 'pharmacist', '$2y$10$ZKO7qdsniikzwXsW7cOBD.2UYnqCmnccCAMFAjwxR9Qgb3mGdYJEm');
+(14, 'jenn21', 'jenn@gmail.com', 'pharmacist', '$2y$10$ZKO7qdsniikzwXsW7cOBD.2UYnqCmnccCAMFAjwxR9Qgb3mGdYJEm'),
+(15, 'tom21', 'tom@gmail.com', 'patient', '$2y$10$TnQi.lqPyfNJlVx7g4JX1ONbMb32DvNGYxzICOzOew50Xj9wsm7tq'),
+(16, 'bod21', 'bod@gmail.com', 'pharmacist', '$2y$10$GGaBtt4mfa8qkc30iLOJm.CFOE45YCWO07xlx8e0Topc2p4Svi2OC');
 
 -- --------------------------------------------------------
 
@@ -312,7 +331,7 @@ INSERT INTO `Users` (`userId`, `userName`, `contactInfo`, `userType`, `password`
 --
 DROP TABLE IF EXISTS `medicationinventoryview`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `medicationinventoryview`  AS SELECT `m`.`medicationId` AS `medicationId`, `m`.`medicationName` AS `medicationName`, `m`.`dosage` AS `dosage`, `m`.`manufacturer` AS `manufacturer`, `i`.`quantityAvailable` AS `quantityAvailable`, `i`.`lastUpdated` AS `lastUpdated` FROM (`medications` `m` join `inventory` `i` on(`m`.`medicationId` = `i`.`medicationId`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `medicationinventoryview`  AS SELECT `m`.`medicationId` AS `medicationId`, `m`.`medicationName` AS `medicationName`, `m`.`dosage` AS `dosage`, `m`.`manufacturer` AS `manufacturer`, `i`.`quantityAvailable` AS `quantityAvailable`, `i`.`lastUpdated` AS `lastUpdated` FROM (`medications` `m` left join `inventory` `i` on(`m`.`medicationId` = `i`.`medicationId`)) ;
 
 -- --------------------------------------------------------
 
@@ -321,7 +340,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `patientprescriptiondetails`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `patientprescriptiondetails`  AS SELECT `u`.`userName` AS `userName`, `m`.`medicationName` AS `medicationName`, `m`.`dosage` AS `dosage`, `p`.`dosageInstructions` AS `dosageInstructions`, `p`.`prescribedDate` AS `prescribedDate` FROM ((`prescriptions` `p` join `users` `u` on(`p`.`userId` = `u`.`userId`)) join `medications` `m` on(`p`.`medicationId` = `m`.`medicationId`)) WHERE `u`.`userType` = 'patient' ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `patientprescriptiondetails`  AS SELECT `p`.`prescriptionId` AS `prescriptionId`, `u`.`userId` AS `userId`, `u`.`userName` AS `userName`, `m`.`medicationId` AS `medicationId`, `m`.`medicationName` AS `medicationName`, `m`.`dosage` AS `dosage`, `p`.`dosageInstructions` AS `dosageInstructions`, `p`.`quantity` AS `quantity`, `p`.`refillCount` AS `refillCount`, `p`.`prescribedDate` AS `prescribedDate` FROM ((`prescriptions` `p` join `users` `u` on(`p`.`userId` = `u`.`userId`)) join `medications` `m` on(`p`.`medicationId` = `m`.`medicationId`)) ;
 
 --
 -- Indexes for dumped tables
@@ -370,19 +389,19 @@ ALTER TABLE `Users`
 -- AUTO_INCREMENT for table `Inventory`
 --
 ALTER TABLE `Inventory`
-  MODIFY `inventoryId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `inventoryId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `Medications`
 --
 ALTER TABLE `Medications`
-  MODIFY `medicationId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `medicationId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `Prescriptions`
 --
 ALTER TABLE `Prescriptions`
-  MODIFY `prescriptionId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `prescriptionId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `Sales`
@@ -394,7 +413,7 @@ ALTER TABLE `Sales`
 -- AUTO_INCREMENT for table `Users`
 --
 ALTER TABLE `Users`
-  MODIFY `userId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `userId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- Constraints for dumped tables
